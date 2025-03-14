@@ -2,20 +2,47 @@ import streamlit as st
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import os
 
-# Load data
-@st.cache_data
-def load_data():
-    day_df = pd.read_csv("day.csv", parse_dates=["dteday"])
-    hour_df = pd.read_csv("hour.csv", parse_dates=["dteday"])
-    return day_df, hour_df
+sns.set(style='dark')
+# Tentukan direktori tempat file berada
+data_dir = "D:\\proyek_analisis_data\\dashboard"
 
-day_df, hour_df = load_data()
+# Pastikan path menuju file, bukan folder
+day_file = os.path.join(data_dir, "day.csv")  # path benar
+hour_file = os.path.join(data_dir, "hour.csv")  # path benar
 
+# Cek apakah file benar-benar ada sebelum membaca
+if os.path.exists(day_file) and os.path.exists(hour_file):
+    # Baca file CSV menggunakan Pandas
+    day_df = pd.read_csv(day_file)
+    hour_df = pd.read_csv(hour_file)
+
+    print("File berhasil dibaca!")
+else:
+    print("Error: Salah satu atau kedua file tidak ditemukan. Periksa path!")
+
+    # menghapus kolom 'instant' karena tidak relevan
+day_df.drop('instant', axis=1, inplace=True)
+hour_df.drop('instant', axis=1, inplace=True)
+
+# menghapus kolom 'workingday' karena sudah ada kolom 'weekday'
+day_df.drop('workingday', axis=1, inplace=True)
+hour_df.drop('workingday', axis=1, inplace=True)
+
+# mengubah kolom 'temp', 'atemp', 'hum', 'windspeed' menjadi satuan lebih umum sesuai readme
+day_df["temp"] = day_df["temp"] * 41
+day_df["atemp"] = day_df["atemp"] * 50
+day_df["hum"] = day_df["hum"] * 100
+day_df["windspeed"] = day_df["windspeed"] * 67
+day_df.head()
 # Konversi kolom numerik menjadi kategori dengan label deskriptif
 category_mappings = {
     "season": {1: "Spring", 2: "Summer", 3: "Fall", 4: "Winter"},
     "yr": {0: "2011", 1: "2012"},
+    "mnth": {1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun",
+             7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"},
+    "holiday": {0: "No", 1: "Yes"},
     "weekday": {0: "Sun", 1: "Mon", 2: "Tue", 3: "Wed", 4: "Thu", 5: "Fri", 6: "Sat"},
     "weathersit": {1: "Clear", 2: "Mist/Cloudy", 3: "Light Rain/Snow", 4: "Heavy Rain/Snow"}
 }
@@ -67,7 +94,7 @@ ax.bar(labels, values, color=['red', 'blue'])
 st.pyplot(fig)
 
 # Analisis pengguna berdasarkan season, year, weekday, dan jam
-st.subheader("Pengguna Registered vs Casual Berdasarkan Season dan Year")
+st.subheader("Pengguna Registered vs Casual Berdasarkan Musim")
 fig, ax = plt.subplots()
 sns.barplot(x='season', y='casual', data=df_filtered, color='red', label='Casual')
 sns.barplot(x='season', y='registered', data=df_filtered, color='blue', label='Registered')
@@ -76,6 +103,7 @@ ax.set_ylabel("Jumlah Pengguna")
 ax.legend()
 st.pyplot(fig)
 
+st.subheader("Pengguna Registered vs Casual Berdasarkan Tahun")
 fig, ax = plt.subplots()
 sns.barplot(x='yr', y='casual', data=df_filtered, color='red', label='Casual')
 sns.barplot(x='yr', y='registered', data=df_filtered, color='blue', label='Registered')
@@ -87,19 +115,21 @@ st.pyplot(fig)
 # Pengaruh cuaca terhadap penyewaan sepeda
 st.subheader("Pengaruh Cuaca terhadap Penyewaan Sepeda")
 fig, ax = plt.subplots()
-sns.barplot(x='weathersit', y='cnt', data=df_filtered, palette="coolwarm")
+order = ["Clear", "Mist/Cloudy", "Light Rain/Snow", "Heavy Rain/Snow"]  # Urutan kategori
+sns.barplot(x='weathersit', y='cnt', data=df_filtered, palette="coolwarm", order=order)
 ax.set_xlabel("Kondisi Cuaca")
 ax.set_ylabel("Total Penyewaan")
 st.pyplot(fig)
 
 # Pengaruh cuaca berdasarkan season dan weekday
-st.subheader("Pengaruh Cuaca Berdasarkan Musim dan Hari dalam Seminggu")
+st.subheader("Pengaruh Cuaca Berdasarkan Musim")
 fig, ax = plt.subplots()
 sns.barplot(x='season', y='cnt', hue='weathersit', data=df_filtered, palette="coolwarm")
 ax.set_xlabel("Musim")
 ax.set_ylabel("Total Penyewaan")
 st.pyplot(fig)
 
+st.subheader("Pengaruh Cuaca Berdasarkan Hari dalam Seminggu")
 fig, ax = plt.subplots()
 sns.barplot(x='weekday', y='cnt', hue='weathersit', data=df_filtered, palette="coolwarm")
 ax.set_xlabel("Hari dalam Seminggu")
@@ -119,4 +149,4 @@ else:
 
 # Menampilkan statistik deskriptif
 st.subheader("Ringkasan Statistik")
-st.write(df_filtered.describe())
+st.write(df_filtered.head())
