@@ -9,8 +9,8 @@ sns.set(style='dark')
 data_dir = "D:\\proyek_analisis_data\\dashboard"
 
 # Pastikan path menuju file, bukan folder
-day_file = os.path.join(data_dir, "day.csv")  # path benar
-hour_file = os.path.join(data_dir, "hour.csv")  # path benar
+day_file = os.path.join(data_dir, "dashboard/day.csv")  # path benar
+hour_file = os.path.join(data_dir, "dashboard/hour.csv")  # path benar
 
 # Cek apakah file benar-benar ada sebelum membaca
 if os.path.exists(day_file) and os.path.exists(hour_file):
