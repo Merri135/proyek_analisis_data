@@ -9,8 +9,8 @@ sns.set(style='dark')
 data_dir = os.getcwd()  # Gunakan direktori kerja saat ini
 
 # Pastikan path menuju file, bukan folder
-day_file = os.path.join(data_dir, "dashboard/day.csv")
-hour_file = os.path.join(data_dir, "dashboard/hour.csv")
+day_file = os.path.join(data_dir, "Dasboard/day.csv")
+hour_file = os.path.join(data_dir, "Dasboard/hour.csv")
 
 # Cek apakah file benar-benar ada sebelum membaca
 try:
