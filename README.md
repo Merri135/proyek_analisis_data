@@ -1,3 +1,6 @@
+## Setup Evironment - Python
+- pip install -r requirements.txt
+
 ## Setup Evironment - terminal/shell
 - mkdir proyek_analisis_data
 - cd proyek_analisis_data
