@@ -28,6 +28,10 @@ except Exception as e:
 day_df.drop('instant', axis=1, inplace=True)
 hour_df.drop('instant', axis=1, inplace=True)
 
+# menghapus kolom 'instant' karena tidak relevan
+day_df.drop('instant', axis=1, inplace=True)
+hour_df.drop('instant', axis=1, inplace=True)
+
 # menghapus kolom 'workingday' karena sudah ada kolom 'weekday'
 day_df.drop('workingday', axis=1, inplace=True)
 hour_df.drop('workingday', axis=1, inplace=True)
@@ -96,21 +100,19 @@ ax.bar(labels, values, color=['red', 'blue'])
 st.pyplot(fig)
 
 # Analisis pengguna berdasarkan season, year, weekday, dan jam
-st.subheader("Pengguna Registered vs Casual Berdasarkan Musim")
+st.subheader("Permintaan sewa sepeda Berdasarkan Musim")
 fig, ax = plt.subplots()
-sns.barplot(x='season', y='casual', data=df_filtered, color='red', label='Casual')
-sns.barplot(x='season', y='registered', data=df_filtered, color='blue', label='Registered')
+sns.barplot(x='season', y='cnt', data=df_filtered, color='skyblue')
 ax.set_xlabel("Musim")
-ax.set_ylabel("Jumlah Pengguna")
+ax.set_ylabel("Jumlah Permintaan")
 ax.legend()
 st.pyplot(fig)
 
-st.subheader("Pengguna Registered vs Casual Berdasarkan Tahun")
+st.subheader("Permintaan sewa sepeda Berdasarkan Tahun")
 fig, ax = plt.subplots()
-sns.barplot(x='yr', y='casual', data=df_filtered, color='red', label='Casual')
-sns.barplot(x='yr', y='registered', data=df_filtered, color='blue', label='Registered')
+sns.barplot(x='yr', y='cnt', data=df_filtered, color='orange',)
 ax.set_xlabel("Tahun")
-ax.set_ylabel("Jumlah Pengguna")
+ax.set_ylabel("Jumlah Permintaan")
 ax.legend()
 st.pyplot(fig)
 
