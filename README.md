@@ -4,6 +4,8 @@
 - pip install pandas
 - pip install matplotlib
 - pip install seaborn
+- pip install streamlit
+  
 ## Setup Evironment - terminal/shell
 - mkdir proyek_analisis_data
 - cd proyek_analisis_data
