@@ -6,22 +6,24 @@ import os
 
 sns.set(style='dark')
 # Tentukan direktori tempat file berada
-data_dir = "D:\\proyek_analisis_data\\Dasboard"
+data_dir = os.getcwd()  # Gunakan direktori kerja saat ini
 
 # Pastikan path menuju file, bukan folder
-day_file = os.path.join(data_dir, "day.csv")  # path benar
-hour_file = os.path.join(data_dir, "hour.csv")  # path benar
+day_file = os.path.join(data_dir, "dashboard/day.csv")
+hour_file = os.path.join(data_dir, "dashboard/hour.csv")
 
 # Cek apakah file benar-benar ada sebelum membaca
-if os.path.exists(day_file) and os.path.exists(hour_file):
-    # Baca file CSV menggunakan Pandas
-    day_df = pd.read_csv(day_file)
-    hour_df = pd.read_csv(hour_file)
+try:
+    if os.path.exists(day_file) and os.path.exists(hour_file):
+        # Baca file CSV menggunakan Pandas
+        day_df = pd.read_csv(day_file)
+        hour_df = pd.read_csv(hour_file)
 
-    print("File berhasil dibaca!")
-else:
-    print("Error: Salah satu atau kedua file tidak ditemukan. Periksa path!")
-
+        print("File berhasil dibaca!")
+    else:
+        print("Error: Salah satu atau kedua file tidak ditemukan. Periksa path!")
+except Exception as e:
+    print(f"Terjadi kesalahan saat membaca file: {e}")
     # menghapus kolom 'instant' karena tidak relevan
 day_df.drop('instant', axis=1, inplace=True)
 hour_df.drop('instant', axis=1, inplace=True)
