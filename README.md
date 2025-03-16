@@ -12,6 +12,6 @@
 - pip install -r reqruitments.txt
 
 ## Run app streamlit - Run di Terminal/shell
-- cd D:/proyek_analisis_data
+- cd D:\proyek_analisis_data
 - cd Dasboard
 - streamlit run dashboard.py 
