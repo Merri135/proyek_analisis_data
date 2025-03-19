@@ -160,7 +160,7 @@ ax.set_ylabel("Jumlah Penyewaan")
 ax.set_title("Pengaruh cuaca pada penyewaan sepeda")
 st.pyplot(fig)
 
-   st.header("🔍 Analisis Lanjutan")
+st.header("🔍 Analisis Lanjutan")
 
 # Simulasi Clustering (pastikan hanya dari data yang telah difilter)
 np.random.seed(42)
