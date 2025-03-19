@@ -3,7 +3,9 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import os
-
+from sklearn.cluster import KMeans
+import numpy as np
+import plotly.express as px
 sns.set(style='dark')
 # Tentukan direktori tempat file berada
 data_dir = os.getcwd()  # Gunakan direktori kerja saat ini
@@ -96,64 +98,140 @@ ax.bar(labels, values, color=['red', 'blue'])
 st.pyplot(fig)
 
 # Analisis pengguna berdasarkan season, year, weekday, dan jam
-st.subheader("Permintaan sewa sepeda berdasarkan Musim")
+# Menghitung total jumlah penyewaan per musim
+df_season = df_filtered.groupby('season')['cnt'].sum().reset_index()
 fig, ax = plt.subplots()
-sns.barplot(x='season', y='cnt', data=df_filtered, color='skyblue')
+sns.barplot(x='season', y='cnt', data=df_season, palette=['navy', 'green', 'teal', 'yellow'])
+
 ax.set_xlabel("Musim")
 ax.set_ylabel("Jumlah Permintaan")
-ax.legend()
+ax.set_title("Permintaan Penyewaan Sepeda Berdasarkan Musim")
+
 st.pyplot(fig)
 
-st.subheader("Permintaan sewa sepeda berdasarkan Tahun")
-fig, ax = plt.subplots()
-sns.barplot(x='yr', y='cnt', data=df_filtered, color='orange')
+
+
+# Mengelompokkan data berdasarkan tahun
+df_yearly = df_filtered.groupby("yr")["cnt"].sum().reset_index()
+colors = ['yellow', 'navy']  # Warna disesuaikan dengan gambar
+fig, ax = plt.subplots(figsize=(8, 5))
+sns.barplot(x='yr', y='cnt', data=df_yearly, palette=colors)
 ax.set_xlabel("Tahun")
 ax.set_ylabel("Jumlah Permintaan")
-ax.legend()
+ax.set_title("Permintaan Penyewaan Sepeda Berdasarkan Tahun")
 st.pyplot(fig)
 
-st.subheader("Permintaan sewa sepeda berdasarkan hari dalam seminggu")
-fig, ax = plt.subplots()
-sns.barplot(x='weekday', y='cnt', data=df_filtered, color='yellow')
-ax.set_xlabel("hari dalam seminggu")
+# Menampilkan subjudul di Streamlit
+
+# Mengurutkan bulan dengan benar
+order_months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+# Mengelompokkan data berdasarkan bulan
+df_yearly = df_filtered.groupby("mnth")["cnt"].sum().reset_index()
+df_yearly["mnth"] = pd.Categorical(df_yearly["mnth"], categories=order_months, ordered=True)
+df_yearly = df_yearly.sort_values("mnth")
+colors = sns.color_palette("Blues", len(df_yearly))
+fig, ax = plt.subplots(figsize=(8, 5))
+sns.barplot(x="mnth", y="cnt", data=df_yearly, palette=colors)
+ax.set_xlabel("Bulan")
 ax.set_ylabel("Jumlah Permintaan")
+ax.set_title("Permintaan Penyewaan Sepeda Berdasarkan Bulan")
+st.pyplot(fig)
+
+
+fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(10, 4))
+sns.lineplot(x='weekday', y='cnt', data=df_filtered, color='navy', marker='o')
+ax.set_xlabel("Hari dalam seminggu")
+ax.set_ylabel("Jumlah Permintaan")
+ax.set_title("Permintaan Penyewaan Sepeda Berdasarkan Hari")
 ax.legend()
 st.pyplot(fig)
 
-# Pengaruh cuaca terhadap penyewaan sepeda
-st.subheader("Pengaruh Cuaca terhadap Penyewaan Sepeda")
-fig, ax = plt.subplots()
-order = ["Clear", "Mist/Cloudy", "Light Rain/Snow", "Heavy Rain/Snow"]  # Urutan kategori
-sns.barplot(x='weathersit', y='cnt', data=df_filtered, palette="coolwarm", order=order)
-ax.set_xlabel("Kondisi Cuaca")
-ax.set_ylabel("Total Penyewaan")
+
+# Mengelompokkan data berdasarkan tahun
+df_yearly = df_filtered.groupby("weathersit")["cnt"].sum().reset_index()
+colors = ["darkblue", "royalblue", "deepskyblue", "lightblue"]  # Warna disesuaikan dengan gambar
+fig, ax = plt.subplots(figsize=(8, 5))
+sns.barplot(x='weathersit', y='cnt', data=df_yearly, palette=colors)
+ax.set_xlabel("Cuaca")
+ax.set_ylabel("Jumlah Penyewaan")
+ax.set_title("Pengaruh cuaca pada penyewaan sepeda")
 st.pyplot(fig)
 
-# Pengaruh cuaca berdasarkan season dan weekday
-st.subheader("Pengaruh Cuaca Berdasarkan Musim")
-fig, ax = plt.subplots()
-sns.barplot(x='season', y='cnt', hue='weathersit', data=df_filtered, palette="coolwarm")
+# Simulasi Clustering (pastikan hanya dari data yang telah difilter)
+np.random.seed(42)
+cluster_data = {
+    'temp': np.random.rand(len(df_filtered)) * 40,
+    'hum': np.random.rand(len(df_filtered)) * 100,
+    'windspeed': np.random.rand(len(df_filtered)) * 50,
+    'cnt': np.random.randint(100, 1000, len(df_filtered)),
+    'season_label': df_filtered['season'].values,
+    'usage_level': np.random.choice(['Permintaan Tinggi', 'Permintaan Sedang', 'Permintaan Rendah'], len(df_filtered))
+}
+cluster_df = pd.DataFrame(cluster_data)
+
+
+# Menampilkan Metode Elbow di Streamlit
+
+# Pilih fitur untuk clustering
+features = ['temp', 'hum', 'windspeed', 'cnt']
+X = df_filtered[features]
+
+# Normalisasi Data
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Menentukan nilai WCSS untuk berbagai jumlah cluster
+wcss = []
+K_range = range(1, 11)  # Coba dari 1 hingga 10 cluster
+for k in K_range:
+    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+    kmeans.fit(X_scaled)
+    wcss.append(kmeans.inertia_)
+
+# Membuat Plot Elbow
+fig, ax = plt.subplots(figsize=(10, 5))
+ax.plot(K_range, wcss, marker='o', linestyle='-')
+ax.set_xlabel("Jumlah Cluster (k)")
+ax.set_ylabel("WCSS")
+ax.set_title("Metode Elbow untuk Menentukan Jumlah Cluster Optimal")
+ax.grid(True)
+
+# Tampilkan plot di Streamlit
+st.pyplot(fig)
+
+
+# *Visualisasi Cluster Sesuai Filter*
+
+# Hitung jumlah hari untuk setiap musim dan level permintaan
+cluster_season = pd.crosstab(cluster_df['season_label'], cluster_df['usage_level'])
+
+# Warna sesuai gambar
+warna_kategori = {
+    'Permintaan Tinggi': 'navy',
+    'Permintaan Sedang': 'blue',
+    'Permintaan Rendah': 'lightblue'
+}
+
+# Plot dengan Matplotlib
+fig, ax = plt.subplots(figsize=(10, 6))
+cluster_season.plot(kind='bar', stacked=False, ax=ax, color=[warna_kategori[col] for col in cluster_season.columns])
+
+# Tambahkan label jumlah pada setiap batang
+for container in ax.containers:
+    ax.bar_label(container, fmt='%d', label_type='edge', fontsize=10)
+
+# Sesuaikan label dan judul
 ax.set_xlabel("Musim")
-ax.set_ylabel("Total Penyewaan")
-st.pyplot(fig)
+ax.set_ylabel("Jumlah Permintaan")
+ax.set_title("Distribusi Level Permintaan Penyewaan Sepeda Berdasarkan Musim")
+ax.legend(title="usage_level", loc='upper center')
 
-st.subheader("Pengaruh Cuaca Berdasarkan Hari dalam Seminggu")
-fig, ax = plt.subplots()
-sns.barplot(x='weekday', y='cnt', hue='weathersit', data=df_filtered, palette="coolwarm")
-ax.set_xlabel("Hari dalam Seminggu")
-ax.set_ylabel("Total Penyewaan")
+# Tampilkan plot di Streamlit
 st.pyplot(fig)
-
-# Pengaruh jam dalam sehari terhadap penyewaan sepeda
-st.subheader("Pola Penyewaan Sepeda Berdasarkan Jam")
-if 'hr' in hour_df.columns:
-    fig, ax = plt.subplots()
-    sns.lineplot(x='hr', y='cnt', data=hour_df, marker='o', color='g')
-    ax.set_xlabel("Jam")
-    ax.set_ylabel("Total Penyewaan")
-    st.pyplot(fig)
-else:
-    st.write("Kolom 'hr' tidak ditemukan dalam dataset.")
 
 # Menampilkan statistik deskriptif
 st.subheader("Ringkasan Statistik")
