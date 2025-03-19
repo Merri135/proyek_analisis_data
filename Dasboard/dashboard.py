@@ -150,7 +150,7 @@ ax.legend()
 st.pyplot(fig)
 
 
-# Mengelompokkan data berdasarkan tahun
+# Mengelompokkan data berdasarkan cuaca
 df_yearly = df_filtered.groupby("weathersit")["cnt"].sum().reset_index()
 colors = ["darkblue", "royalblue", "deepskyblue", "lightblue"]  # Warna disesuaikan dengan gambar
 fig, ax = plt.subplots(figsize=(8, 5))
@@ -159,6 +159,8 @@ ax.set_xlabel("Cuaca")
 ax.set_ylabel("Jumlah Penyewaan")
 ax.set_title("Pengaruh cuaca pada penyewaan sepeda")
 st.pyplot(fig)
+
+   st.header("🔍 Analisis Lanjutan")
 
 # Simulasi Clustering (pastikan hanya dari data yang telah difilter)
 np.random.seed(42)
